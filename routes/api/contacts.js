@@ -33,13 +33,17 @@ const updateContact = async ({ contactId }, body) => {
     const target = contactsList.findIndex(
       (contact) => contact.id === contactId
     );
-    const { error } = controlSchema.validate(body);
+
     const updatedContact = { ...contactsList[target], ...body };
-    // const { error } = controlSchema.validate(updatedContact);
+    const { error } = controlSchema.validate(updatedContact);
     if (error) {
       throw HttpError(400, `Not cottect data. ${error.message}`);
     }
     contactsList.splice(target, 1, updatedContact);
+    // дописати запис у базу даних(файл)
+    // ***********************************
+    // await fs.writeFile(dbRootPath, JSON.stringify(contactsList, null, 2));
+    // ***********************************
     return contactsList;
   } catch (error) {
     return error;
@@ -51,6 +55,7 @@ const HttpError = require("../../helpers");
 const { nanoid } = require("nanoid");
 
 const controlSchema = Joi.object({
+  id: Joi.string().optional(),
   name: Joi.string().required(),
   email: Joi.string().email().required(),
   phone: Joi.string().required(),
@@ -87,7 +92,6 @@ router.get("/:contactId", async (req, res, next) => {
 
 // ****************************************************************
 router.post("/", async (req, res, next) => {
-  const contactsList = await dbData();
   try {
     const { error } = controlSchema.validate(req.body);
     if (error) {
@@ -113,17 +117,18 @@ router.put("/:contactId", async (req, res, next) => {
     if (!Object.keys(req.body).length) {
       throw HttpError(400, `missing fields`);
     }
-    const response = await updateContact(req.params, req.body);
-    if (response.error) {
-      throw HttpError(response.error.status, response.error.message);
+    const result = await updateContact(req.params, req.body); // ok [{} {}] = err > {status, message}
+
+    console.log("Arrived response: ", result?.status); // для контролю, при релізі видалити
+    // CSSConditionRule.dir(response);
+    if (result.status) {
+      throw HttpError(result.status, result.message);
     }
-    console.log("update response: ", response);
+    console.log("update response: ", result);
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
-
-  // console.log(contactTarget);
-  res.json({ message: "PUT template message" });
 });
 
 // ****************************************************************
