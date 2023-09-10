@@ -1,6 +1,7 @@
 const fs = require("fs/promises");
 const path = require("path");
 const Joi = require("joi");
+const { nanoid } = require("nanoid");
 
 // ************************************************
 const dbRootPath = path.join(__dirname, "./contacts.json");
@@ -27,19 +28,31 @@ const getContactById = async (contactId) => {
 
 // ------------------------------------------------
 const addContact = async (body) => {
+  const { error } = controlSchema.validate(body); // control body
+  if (error) {
+    return {
+      status: 400,
+      message: `Not correct data. ${error.message}`,
+    };
+  }
   const contactsList = await listContacts();
-
   const index = contactsList.findIndex(
     (contact) => contact.email === body.email && contact.phone === body.phone
   );
   if (index !== -1) {
-    return index;
+    return {
+      status: 409,
+      message: "Contact already exists",
+    };
   }
-  await contactsList.push(body);
+  const newContact = { id: nanoid(), ...body };
+  await contactsList.push(newContact);
   await fs.writeFile(dbRootPath, JSON.stringify(contactsList, null, 2));
+  return newContact;
 };
 // ------------------------------------------------
 const updateContact = async ({ contactId }, body) => {
+  //
   const contactsList = await listContacts();
   const target = contactsList.findIndex((contact) => contact.id === contactId);
   // ***********************************
@@ -47,11 +60,10 @@ const updateContact = async ({ contactId }, body) => {
 
   const { error } = controlSchema.validate(updatedContact);
   if (error) {
-    const controlError = {
+    return {
       status: 400,
       message: `Not correct data. ${error.message}`,
     };
-    return controlError;
   }
   contactsList.splice(target, 1, updatedContact);
   // ***********************************

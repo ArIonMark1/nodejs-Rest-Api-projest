@@ -47,19 +47,16 @@ router.get("/:contactId", async (req, res, next) => {
 // create contact
 router.post("/", async (req, res, next) => {
   try {
-    if (!Object.keys(req.body).length) {
+    const contactData = req.body;
+    if (!Object.keys(contactData).length) {
       throw HttpError(400, `missing fields`);
     }
-    const { error } = controlSchema.validate(req.body); // control body
-    if (error) {
-      throw HttpError(400, `Not cottect data. ${error.message}`);
+
+    const isExist = await contacts.addContact(contactData);
+    if (isExist.status) {
+      throw HttpError(isExist.status, isExist.message);
     }
-    const newContact = { id: nanoid(), ...req.body }; // create obj
-    const isExist = await contacts.addContact(newContact);
-    if (isExist) {
-      throw HttpError(409, "Contact already exists");
-    }
-    res.status(201).json(newContact);
+    res.status(201).json(isExist);
   } catch (error) {
     next(error);
   }
@@ -79,7 +76,6 @@ router.put("/:contactId", async (req, res, next) => {
       throw HttpError(result.status, result.message);
     }
     res.status(200).json(result);
-    res.send(result);
   } catch (error) {
     next(error);
   }

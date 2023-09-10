@@ -1,10 +1,9 @@
 const express = require("express");
 const logger = require("morgan");
+// morgan - проміжний компонент для протоколювання запитів із можливістю налаштування формату виводу(логування дій на сервері, запитів)
 const cors = require("cors");
 require("dotenv").config();
-// process.env.NODE_ENV;
-// process.env.SECRET_KEY;
-// morgan - проміжний компонент для протоколювання запитів із можливістю налаштування формату виводу(логування дій на сервері, запитів)
+
 const contactsRouter = require("./routes/api/contacts");
 
 const app = express(); // повертає вебсервер
