@@ -9,8 +9,9 @@ const contactSchema = new Schema(
     email: {
       type: String,
       lowercase: true,
-      // =================================================================
       unique: true,
+      required: [true, "Set email for contact"],
+      // =================================================================
       //
       validate: {
         validator: async function (email) {
@@ -26,7 +27,6 @@ const contactSchema = new Schema(
         message: (props) => "Incorrect Email address. Try again",
       },
       // =================================================================
-      required: [true, "Set email for contact"],
       match: [
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
         "Please fill a valid email address",
@@ -42,7 +42,10 @@ const contactSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    isDeleted: { type: Boolean, default: false },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true, validateBeforeSave: true, versionKey: false }
 );
