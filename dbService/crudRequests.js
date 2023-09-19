@@ -1,4 +1,5 @@
 const ContactModel = require("./schemas/dbSchema");
+// ************************************************
 
 const allData = async () => {
   return await ContactModel.find({ isDeleted: false || null });
@@ -6,7 +7,9 @@ const allData = async () => {
 
 // ------------------------------------------------
 const getContactById = async (contactId) => {
-  return (await ContactModel.findById(contactId)) || null;
+  return await ContactModel.findById(contactId).where({
+    isDeleted: false || null,
+  });
 };
 
 // ------------------------------------------------
@@ -26,7 +29,15 @@ const updateContact = async ({ contactId }, body) => {
     }
   );
 };
+const updateFavorite = async ({ contactId }, body) => {
+  const favorite = Boolean(+body.favorite);
 
+  return await ContactModel.findByIdAndUpdate(
+    contactId,
+    { $set: { favorite } },
+    { new: true, returnOriginal: false }
+  );
+};
 // ------------------------------------------------
 const removeContact = async (contactId) => {
   return (
@@ -45,5 +56,6 @@ module.exports = {
   getContactById,
   addContact,
   updateContact,
+  updateFavorite,
   removeContact,
 };

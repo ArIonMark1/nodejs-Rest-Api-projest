@@ -1,13 +1,16 @@
 const express = require("express");
 const controller = require("../../controller");
 const router = express.Router();
-const HttpError = require("../../helpers");
+// const HttpError = require("../../helpers");
 
 // get list of contact
 router.get("/", controller.getList);
 
 // get contact by ID
 router.get("/:contactId", controller.getById);
+
+// patch update contact field "favorite"
+router.patch("/:contactId/favorite", controller.updateStatusContact);
 
 // create contact
 router.post("/", controller.create);

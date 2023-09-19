@@ -9,12 +9,13 @@ const contactSchema = new Schema(
     email: {
       type: String,
       lowercase: true,
-      unique: [true, "Already exists"],
+      // =================================================================
+      unique: true,
       //
       validate: {
         validator: async function (email) {
           const user = await this.constructor.findOne({ email });
-          if (user) {
+          if (user && !user.isDeleted) {
             if (this.id === user.id) {
               return true;
             }
@@ -24,7 +25,7 @@ const contactSchema = new Schema(
         },
         message: (props) => "Incorrect Email address. Try again",
       },
-      //
+      // =================================================================
       required: [true, "Set email for contact"],
       match: [
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
