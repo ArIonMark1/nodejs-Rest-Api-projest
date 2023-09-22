@@ -1,6 +1,6 @@
 /* Основна логіка нашої програми */
-/*Портуємо обробники БД !!*/
-const contacts = require("../models");
+/* Портуємо обробники БД !! */
+
 const HttpError = require("../helpers/HttpError");
 require("colors");
 // ****************************************************************
@@ -44,7 +44,6 @@ const create = async (req, res, next) => {
     if (!Object.keys(req.body).length) {
       throw HttpError(400, `missing fields`);
     }
-    // const isExist = await contacts.addContact(req.body);
     const isExist = await handlerRequest.addContact(req.body);
     if (isExist.error) {
       const { status, message } = isExist.error;
@@ -63,6 +62,12 @@ const updateByID = async (req, res, next) => {
     }
     // const result = await contacts.updateContact(req.params, req.body);
     const result = await handlerRequest.updateContact(req.params, req.body);
+    if (!result) {
+      throw HttpError(
+        404,
+        `Contact with ID '${req.params.contactId}' NOT FOUND`
+      );
+    }
     if (result.error) {
       const { status, message } = result.error;
       throw HttpError(status, message);
@@ -90,7 +95,6 @@ const updateStatusContact = async (req, res, next) => {
     next(error);
   }
 };
-
 const deleteByID = async (req, res, next) => {
   try {
     const { contactId } = req.params;

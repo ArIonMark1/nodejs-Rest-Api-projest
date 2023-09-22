@@ -1,6 +1,5 @@
 const express = require("express");
 const logger = require("morgan"); // morgan - проміжний компонент для протоколювання запитів із можливістю налаштування формату виводу(логування дій на сервері, запитів)
-const env = require("./helpers/env");
 const cors = require("cors"); // CROSS-ORIGIN RESOURCE SHARING(перехрений обмін ресурсами) - механізм, за допомогою HTTP-заголовків дає браузеру дозвіл
 // завантажувати ресурси з певного джерела на запит web-додатка, отриманого з відмінного джерела
 const contactsRouter = require("./routes/api/contacts");

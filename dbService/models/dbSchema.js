@@ -1,5 +1,5 @@
 const { Schema, model } = require("mongoose"); // mongoose дозволяє описати структуру додавання контакту
-
+const mongooseError = require("../../helpers/handleMongooseErr");
 const contactSchema = new Schema(
   {
     name: {
@@ -9,24 +9,8 @@ const contactSchema = new Schema(
     email: {
       type: String,
       lowercase: true,
-      unique: true,
+      // unique: true, Унікальне поле не потрібно так як йдеперевірка через поле isDeleted
       required: [true, "Set email for contact"],
-      // =================================================================
-      //
-      validate: {
-        validator: async function (email) {
-          const user = await this.constructor.findOne({ email });
-          if (user && !user.isDeleted) {
-            if (this.id === user.id) {
-              return true;
-            }
-            return false;
-          }
-          return true;
-        },
-        message: (props) => "Incorrect Email address. Try again",
-      },
-      // =================================================================
       match: [
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
         "Please fill a valid email address",
@@ -50,6 +34,8 @@ const contactSchema = new Schema(
   { timestamps: true, validateBeforeSave: true, versionKey: false }
 );
 
-const Contact = model("contacts", contactSchema);
+contactSchema.post("save", mongooseError); // запис означає що коли сталася помилк то спрацює ця middleware
+
+const Contact = model("contact", contactSchema);
 
 module.exports = Contact;
