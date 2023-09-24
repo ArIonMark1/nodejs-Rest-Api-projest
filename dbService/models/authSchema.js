@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const mongooseError = require("../../helpers/handleMongooseErr");
 
 const emailControl = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
@@ -6,9 +7,12 @@ const userSchema = new Schema(
   {
     firstName: { type: String },
     lastName: { type: String },
-    fullName: function () {
-      return `${this.firstName} ${this.lastName}`;
-    },
+
+    // fullName: {
+    //   get() {
+    //     return `${this.firstName} ${this.lastName}`;
+    //   },
+    // },
     email: {
       type: String,
       lowercase: true,
@@ -30,6 +34,8 @@ const userSchema = new Schema(
   },
   { timestamps: true, validateBeforeSave: true, versionKey: false }
 );
+
+userSchema.post("save", mongooseError); // запис означає що коли сталася помилк то спрацює ця middleware
 
 const UserModel = model("user", userSchema);
 

@@ -1,3 +1,3 @@
-const controller = require("./bookController");
+const bookController = require("./bookController");
 
-module.exports = controller;
+module.exports = bookController;
