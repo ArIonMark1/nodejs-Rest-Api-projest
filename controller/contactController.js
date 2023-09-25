@@ -9,8 +9,8 @@ const handlerRequest = require("../dbService/crudRequests");
 
 const getList = async (req, res, next) => {
   try {
-    // const contactList = await contacts.listContacts();
-    const contactList = await handlerRequest.allData();
+    const { _id: owner } = req.user;
+    const contactList = await handlerRequest.allData(owner, req.query);
 
     if (!contactList) {
       throw HttpError(404, "Data not finded");
@@ -20,6 +20,7 @@ const getList = async (req, res, next) => {
     next(error);
   }
 };
+
 const getById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
@@ -39,12 +40,14 @@ const getById = async (req, res, next) => {
     next(error);
   }
 };
+// ****************************************************************
 const create = async (req, res, next) => {
+  const { _id: owner } = req.user;
   try {
     if (!Object.keys(req.body).length) {
       throw HttpError(400, `missing fields`);
     }
-    const isExist = await handlerRequest.addContact(req.body);
+    const isExist = await handlerRequest.addContact({ ...req.body, owner });
     if (isExist.error) {
       const { status, message } = isExist.error;
       throw HttpError(status, message);

@@ -8,11 +8,6 @@ const userSchema = new Schema(
     firstName: { type: String },
     lastName: { type: String },
 
-    // fullName: {
-    //   get() {
-    //     return `${this.firstName} ${this.lastName}`;
-    //   },
-    // },
     email: {
       type: String,
       lowercase: true,
@@ -30,7 +25,7 @@ const userSchema = new Schema(
       enum: ["starter", "pro", "business"],
       default: "starter",
     },
-    token: String,
+    token: { type: String, default: "" },
   },
   { timestamps: true, validateBeforeSave: true, versionKey: false }
 );

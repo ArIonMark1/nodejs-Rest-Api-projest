@@ -1,13 +1,24 @@
 const ContactModel = require("./models/dbSchema");
 const HttpError = require("../helpers/HttpError");
-const { CreateContact, UpdateContact } = require("../verifier/contactSchema");
 const EmailController = require("../helpers/EmailController");
 require("colors");
 // ************************************************
 
-const allData = async () => {
+const allData = async (owner, { page = 1, limit = 5 }) => {
   try {
-    return await ContactModel.find({ isDeleted: false || null });
+    const skip = (page - 1) * limit;
+
+    const response = await ContactModel.find({ owner }, null, {
+      skip,
+      limit,
+    }).populate("owner", "firstName lastName email subscription"); // пишемо назву поля яке треба поширити(
+    //візьме ІД яке записане в полі type та піде у колекцію яка вказана в ref та в кінці поверне всі дані )
+    // другим параметром передаємо список необхідних полів
+
+    const filteredList = response.map(
+      (contact) => contact.isDeleted === false && contact
+    );
+    return filteredList;
   } catch (error) {
     return null;
   }
@@ -25,10 +36,6 @@ const getContactById = async (contactId) => {
 // ------------------------------------------------
 const addContact = async (body) => {
   try {
-    const { error } = CreateContact.validate(body);
-    if (error) {
-      throw HttpError(400, `Not correct data. ${error.message}`);
-    }
     const isDublicate = await EmailController(body);
 
     if (isDublicate) {
@@ -43,10 +50,10 @@ const addContact = async (body) => {
 const updateContact = async ({ contactId }, body) => {
   //
   try {
-    const { error } = UpdateContact.validate(body);
-    if (error) {
-      throw HttpError(400, `Not correct data. ${error.message}`);
-    }
+    // const { error } = UpdateContact.validate(body);
+    // if (error) {
+    //   throw HttpError(400, `Not correct data. ${error.message}`);
+    // }
     const isDublicate = await EmailController(body);
     if (isDublicate) {
       throw HttpError(409, "This Email already exists. Please try again.");

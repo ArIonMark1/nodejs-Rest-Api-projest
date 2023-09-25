@@ -1,5 +1,4 @@
 const ContactModel = require("../dbService/models/dbSchema");
-// const HttpError = require("./HttpError");
 
 const EmailController = async (data) => {
   const user = await ContactModel.find({ email: data.email });

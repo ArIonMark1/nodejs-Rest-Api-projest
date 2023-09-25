@@ -1,5 +1,8 @@
 const { Schema, model } = require("mongoose"); // mongoose дозволяє описати структуру додавання контакту
 const mongooseError = require("../../helpers/handleMongooseErr");
+
+const emailControl = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
 const contactSchema = new Schema(
   {
     name: {
@@ -11,10 +14,7 @@ const contactSchema = new Schema(
       lowercase: true,
       // unique: true, Унікальне поле не потрібно так як йдеперевірка через поле isDeleted
       required: [true, "Set email for contact"],
-      match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        "Please fill a valid email address",
-      ],
+      match: [emailControl, "Please fill a valid email address"],
     },
     phone: {
       type: String,
@@ -29,6 +29,11 @@ const contactSchema = new Schema(
     isDeleted: {
       type: Boolean,
       default: false,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
     },
   },
   { timestamps: true, validateBeforeSave: true, versionKey: false }
