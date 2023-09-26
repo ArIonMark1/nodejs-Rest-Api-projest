@@ -7,7 +7,7 @@ const CreateContact = Joi.object({
   email: Joi.string().pattern(emailControl).required(),
   phone: Joi.string().min(10).required(),
   favorite: Joi.boolean(),
-  owner: Joi.object().required(),
+  owner: Joi.object(),
 });
 
 const UpdateContact = Joi.object({

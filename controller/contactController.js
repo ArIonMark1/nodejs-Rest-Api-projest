@@ -24,9 +24,9 @@ const getList = async (req, res, next) => {
 const getById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-
+    const { _id: owner } = req.user;
     // const response = await contacts.getContactById(contactId);
-    const response = await handlerRequest.getContactById(contactId);
+    const response = await handlerRequest.getContactById(owner, contactId);
 
     if (!response || response.error) {
       if (!response) {
@@ -43,6 +43,7 @@ const getById = async (req, res, next) => {
 // ****************************************************************
 const create = async (req, res, next) => {
   const { _id: owner } = req.user;
+
   try {
     if (!Object.keys(req.body).length) {
       throw HttpError(400, `missing fields`);
@@ -64,7 +65,11 @@ const updateByID = async (req, res, next) => {
       throw HttpError(400, `Missing fields`);
     }
     // const result = await contacts.updateContact(req.params, req.body);
-    const result = await handlerRequest.updateContact(req.params, req.body);
+    const result = await handlerRequest.updateContact(
+      req.params,
+      req.user,
+      req.body
+    );
     if (!result) {
       throw HttpError(
         404,
@@ -87,7 +92,11 @@ const updateStatusContact = async (req, res, next) => {
       throw HttpError(400, `Missing field favorite`);
     }
 
-    const response = await handlerRequest.updateFavorite(req.params, req.body);
+    const response = await handlerRequest.updateFavorite(
+      req.params,
+      req.user,
+      req.body
+    );
     if (response.error) {
       const { status, message } = response.error;
       // console.log(`${status} "${message}"`.red);
@@ -100,9 +109,12 @@ const updateStatusContact = async (req, res, next) => {
 };
 const deleteByID = async (req, res, next) => {
   try {
-    const { contactId } = req.params;
+    // const { contactId } = req.params;
 
-    const deleteOperation = await handlerRequest.removeContact(contactId);
+    const deleteOperation = await handlerRequest.removeContact(
+      req.params,
+      req.user
+    );
 
     if (deleteOperation.error) {
       const { status, message } = deleteOperation.error;
