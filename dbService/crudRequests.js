@@ -1,6 +1,7 @@
 const ContactModel = require("./models/dbSchema");
 const HttpError = require("../helpers/HttpError");
 const FindUserByEmail = require("../helpers/FindUserByEmail");
+const { HTTPRequest } = require("puppeteer");
 require("colors");
 // ************************************************
 
@@ -27,10 +28,11 @@ const allData = async (owner, { page = 1, limit = 5 }) => {
 // ------------------------------------------------
 const getContactById = async (owner, contactId) => {
   try {
-    return await ContactModel.findById({
-      isDeleted: false,
-      contactId,
+    console.log(contactId);
+    return await ContactModel.findOne({
+      _id: contactId,
       owner,
+      isDeleted: false,
     }).populate("owner", "firstName lastName email subscription");
   } catch (error) {
     return { error: { status: 400, message: "Wrong type of ID" } };
@@ -57,15 +59,15 @@ const updateContact = async ({ contactId }, { _id: owner }, body) => {
     if (isDublicate) {
       throw HttpError(409, "This Email already exists. Please try again.");
     }
-    const result = await ContactModel.findByIdAndUpdate(
-      { _id: contactId, owner },
+    const result = await ContactModel.findOneAndUpdate(
+      { _id: contactId, owner, isDeleted: false },
       { $set: { ...body } },
       {
         new: true, // повертає нову, змінену, версію
         returnOriginal: false, //
       }
     );
-
+    console.log("Return from CRUD: ".red, result);
     return result;
   } catch (error) {
     return {
@@ -78,8 +80,8 @@ const updateFavorite = async ({ contactId }, { _id: owner }, body) => {
   try {
     const favorite = Boolean(+body.favorite);
 
-    return await ContactModel.findByIdAndUpdate(
-      { _id: contactId, owner },
+    return await ContactModel.findOneAndUpdate(
+      { _id: contactId, owner, isDeleted: false },
       { $set: { favorite } },
       { new: true, returnOriginal: false }
     );
@@ -90,13 +92,19 @@ const updateFavorite = async ({ contactId }, { _id: owner }, body) => {
 // ------------------------------------------------
 const removeContact = async ({ contactId }, { _id: owner }) => {
   try {
-    return await ContactModel.findByIdAndUpdate(
+    console.log("CONTACT ID: ".red, contactId);
+    console.log("OWNER: ".red, owner);
+    const result = await ContactModel.findOneAndUpdate(
       { _id: contactId, owner },
       {
         $set: { isDeleted: true },
       },
       { returnOriginal: false }
     );
+    if (!result) {
+      throw HttpError(404);
+    }
+    return result;
   } catch (error) {
     return {
       error: { status: 404, message: "Contact Not found" },

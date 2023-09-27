@@ -109,8 +109,6 @@ const updateStatusContact = async (req, res, next) => {
 };
 const deleteByID = async (req, res, next) => {
   try {
-    // const { contactId } = req.params;
-
     const deleteOperation = await handlerRequest.removeContact(
       req.params,
       req.user
