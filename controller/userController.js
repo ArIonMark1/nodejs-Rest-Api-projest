@@ -6,8 +6,6 @@ const registration = async (req, res, next) => {
   try {
     const newUser = await userService.createUser(req.body);
 
-    console.log("NEW USER: ".magenta, newUser);
-
     res.status(201).json({
       status: 201,
       message: "User created successfully!",
@@ -43,7 +41,6 @@ const login = async (req, res, next) => {
 const current = async (req, res, next) => {
   try {
     const user = req.user;
-    // console.log("Current".rainbow.bgCyan, req.user);
     //
     res.status(200).json({
       status: 200,
