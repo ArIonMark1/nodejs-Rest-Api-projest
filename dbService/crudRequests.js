@@ -1,61 +1,87 @@
-const ContactModel = require("./schemas/dbSchema");
+const ContactModel = require("./models/dbSchema");
+const HttpError = require("../helpers/HttpError");
+const FindUserByEmail = require("../helpers/FindUserByEmail");
+const { HTTPRequest } = require("puppeteer");
+require("colors");
 // ************************************************
 
-const allData = async () => {
+const allData = async (owner, { page = 1, limit = 5 }) => {
   try {
-    return await ContactModel.find({ isDeleted: false || null });
+    console.log("PAGE: ", typeof page);
+    console.log("PAGE: ", typeof limit);
+
+    const skip = (+page - 1) * +limit;
+    console.log(skip, typeof skip);
+
+    const response = await ContactModel.find({ isDeleted: false, owner }, null)
+      .populate("owner", "firstName lastName email subscription")
+      .skip(+skip)
+      .limit(+limit); // пишемо назву поля яке треба поширити(
+    //візьме ІД яке записане в полі type та піде у колекцію яка вказана в ref та в кінці поверне всі дані )
+    // другим параметром передаємо список необхідних полів
+
+    return response;
   } catch (error) {
     return null;
   }
 };
-
 // ------------------------------------------------
-const getContactById = async (contactId) => {
+const getContactById = async (owner, contactId) => {
   try {
-    return await ContactModel.findById(contactId).where({
-      isDeleted: false || null,
-    });
+    console.log(contactId);
+    return await ContactModel.findOne({
+      _id: contactId,
+      owner,
+      isDeleted: false,
+    }).populate("owner", "firstName lastName email subscription");
   } catch (error) {
     return { error: { status: 400, message: "Wrong type of ID" } };
   }
 };
-
 // ------------------------------------------------
 const addContact = async (body) => {
   try {
+    const isDublicate = await FindUserByEmail(body);
+
+    if (isDublicate) {
+      throw HttpError(409, "Contact already exists");
+    }
     return await ContactModel.create(body);
   } catch (error) {
-    return { error: { status: 400, message: error.message } };
+    return { error: { status: error.status, message: error.message } };
   }
 };
-
 // ------------------------------------------------
-const updateContact = async ({ contactId }, body) => {
+const updateContact = async ({ contactId }, { _id: owner }, body) => {
   //
   try {
-    return await ContactModel.findByIdAndUpdate(
-      contactId,
+    const isDublicate = await FindUserByEmail(body);
+    if (isDublicate) {
+      throw HttpError(409, "This Email already exists. Please try again.");
+    }
+    const result = await ContactModel.findOneAndUpdate(
+      { _id: contactId, owner, isDeleted: false },
       { $set: { ...body } },
       {
-        new: true,
-        returnOriginal: false,
+        new: true, // повертає нову, змінену, версію
+        returnOriginal: false, //
       }
     );
+    console.log("Return from CRUD: ".red, result);
+    return result;
   } catch (error) {
-    const message = error.message.split("::");
     return {
-      error: { status: 400, message: `ErrorEmailDublicate: ${message.pop()}` },
+      error: { status: error.status, message: error.message },
     };
   }
 };
-
 // ------------------------------------------------
-const updateFavorite = async ({ contactId }, body) => {
+const updateFavorite = async ({ contactId }, { _id: owner }, body) => {
   try {
     const favorite = Boolean(+body.favorite);
 
-    return await ContactModel.findByIdAndUpdate(
-      contactId,
+    return await ContactModel.findOneAndUpdate(
+      { _id: contactId, owner, isDeleted: false },
       { $set: { favorite } },
       { new: true, returnOriginal: false }
     );
@@ -64,15 +90,21 @@ const updateFavorite = async ({ contactId }, body) => {
   }
 };
 // ------------------------------------------------
-const removeContact = async (contactId) => {
+const removeContact = async ({ contactId }, { _id: owner }) => {
   try {
-    return await ContactModel.findByIdAndUpdate(
-      contactId,
+    console.log("CONTACT ID: ".red, contactId);
+    console.log("OWNER: ".red, owner);
+    const result = await ContactModel.findOneAndUpdate(
+      { _id: contactId, owner },
       {
         $set: { isDeleted: true },
       },
       { returnOriginal: false }
     );
+    if (!result) {
+      throw HttpError(404);
+    }
+    return result;
   } catch (error) {
     return {
       error: { status: 404, message: "Contact Not found" },

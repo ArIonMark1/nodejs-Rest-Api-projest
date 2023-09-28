@@ -1,6 +1,6 @@
 /* Основна логіка нашої програми */
-/*Портуємо обробники БД !!*/
-const contacts = require("../models");
+/* Портуємо обробники БД !! */
+
 const HttpError = require("../helpers/HttpError");
 require("colors");
 // ****************************************************************
@@ -9,8 +9,8 @@ const handlerRequest = require("../dbService/crudRequests");
 
 const getList = async (req, res, next) => {
   try {
-    // const contactList = await contacts.listContacts();
-    const contactList = await handlerRequest.allData();
+    const { _id: owner } = req.user;
+    const contactList = await handlerRequest.allData(owner, req.query);
 
     if (!contactList) {
       throw HttpError(404, "Data not finded");
@@ -20,12 +20,13 @@ const getList = async (req, res, next) => {
     next(error);
   }
 };
+
 const getById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-
+    const { _id: owner } = req.user;
     // const response = await contacts.getContactById(contactId);
-    const response = await handlerRequest.getContactById(contactId);
+    const response = await handlerRequest.getContactById(owner, contactId);
 
     if (!response || response.error) {
       if (!response) {
@@ -39,13 +40,15 @@ const getById = async (req, res, next) => {
     next(error);
   }
 };
+// ****************************************************************
 const create = async (req, res, next) => {
+  const { _id: owner } = req.user;
+
   try {
     if (!Object.keys(req.body).length) {
       throw HttpError(400, `missing fields`);
     }
-    // const isExist = await contacts.addContact(req.body);
-    const isExist = await handlerRequest.addContact(req.body);
+    const isExist = await handlerRequest.addContact({ ...req.body, owner });
     if (isExist.error) {
       const { status, message } = isExist.error;
       throw HttpError(status, message);
@@ -62,7 +65,17 @@ const updateByID = async (req, res, next) => {
       throw HttpError(400, `Missing fields`);
     }
     // const result = await contacts.updateContact(req.params, req.body);
-    const result = await handlerRequest.updateContact(req.params, req.body);
+    const result = await handlerRequest.updateContact(
+      req.params,
+      req.user,
+      req.body
+    );
+    if (!result) {
+      throw HttpError(
+        404,
+        `Contact with ID '${req.params.contactId}' NOT FOUND`
+      );
+    }
     if (result.error) {
       const { status, message } = result.error;
       throw HttpError(status, message);
@@ -79,7 +92,11 @@ const updateStatusContact = async (req, res, next) => {
       throw HttpError(400, `Missing field favorite`);
     }
 
-    const response = await handlerRequest.updateFavorite(req.params, req.body);
+    const response = await handlerRequest.updateFavorite(
+      req.params,
+      req.user,
+      req.body
+    );
     if (response.error) {
       const { status, message } = response.error;
       // console.log(`${status} "${message}"`.red);
@@ -90,12 +107,12 @@ const updateStatusContact = async (req, res, next) => {
     next(error);
   }
 };
-
 const deleteByID = async (req, res, next) => {
   try {
-    const { contactId } = req.params;
-
-    const deleteOperation = await handlerRequest.removeContact(contactId);
+    const deleteOperation = await handlerRequest.removeContact(
+      req.params,
+      req.user
+    );
 
     if (deleteOperation.error) {
       const { status, message } = deleteOperation.error;
