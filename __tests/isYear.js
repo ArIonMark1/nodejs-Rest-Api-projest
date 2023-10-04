@@ -6,8 +6,15 @@ const isLeapYear = (year) => {
   const days = date.getDate();
   return 29 === days;
 };
+
+// ****************************************************************
 const degree = (a, b) => {
   return a ** b;
 };
 
-module.exports = { isLeapYear, degree };
+// ****************************************************************
+const filterArray = (arr) => {
+  return arr.filter((item, index) => index % 2 === 0);
+};
+
+module.exports = { isLeapYear, degree, filterArray };
