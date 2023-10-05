@@ -24,10 +24,7 @@ const registration = async (req, res, next) => {
 };
 const login = async (req, res, next) => {
   try {
-    console.log("Requested data: ".bgGreen, req.body); // { email: 'killer123@gmail.com', password: '123456Ad' }
     const loginUser = await userService.loggedInUser(req.body); //   _doc  !!!!??? wtf !!!??
-    console.log("Login response: ".bgGreen, loginUser);
-
     if (loginUser.error) {
       throw HttpError(loginUser.error.status, loginUser.error.message);
     }
