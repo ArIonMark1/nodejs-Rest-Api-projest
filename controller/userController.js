@@ -24,7 +24,9 @@ const registration = async (req, res, next) => {
 };
 const login = async (req, res, next) => {
   try {
+    console.log("Передаємо дані: ".bgYellow.black, req.body);
     const loginUser = await userService.loggedInUser(req.body); //   _doc  !!!!??? wtf !!!??
+    console.log("Отримуємо дані: ".bgYellow.black, loginUser._doc);
     if (loginUser.error) {
       throw HttpError(loginUser.error.status, loginUser.error.message);
     }
@@ -32,12 +34,12 @@ const login = async (req, res, next) => {
       throw HttpError(401, "Wrong user data!.");
     }
     const { password, ...userData } = loginUser._doc;
-
+    console.log("Результат для відправки: ".bgYellow.black, userData);
     //
     res.status(200).json({
       status: 200,
       message: "User logged in successfully",
-      data: { userData },
+      data: userData,
     });
   } catch (error) {
     next(error);

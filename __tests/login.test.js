@@ -7,34 +7,93 @@
     у відповіді повинен повертатися об'єкт user з 2 полями email и subscription з типом даних String
 */
 const { getMockReq, getMockRes } = require("@jest-mock/express");
-const userService = require("../services/users"); // Підключення вашого модуля userService, якщо потрібно
-const HttpError = require("../services/users"); // Якщо HttpError - це окремий модуль, підключіть його
-
 const { login } = require("../controller/userController"); // Підключення функції логінізації
-jest.mock("../services/users"); // Мокуємо userService, якщо це потрібно/ ХТО ТИ ТВАРЮКО??!!!
+const userService = require("../services/users"); // Підключення модуля userService
+const HttpError = require("../helpers/HttpError"); //
+
+jest.mock("../services/users"); // Мокуємо userService
 
 require("colors");
 
-// // =================================================================
-describe("loggedInUser function", () => {
-  it("My own login Test", async () => {
-    const mockUser = {
-      _doc: { email: "killer123@gmail.com", password: "123456Ad" },
-    };
+describe("second loggedInUser function".bgYellow.black, () => {
+  const mockUser = {
+    _doc: {
+      _id: "651a8e20e1eb26bb8c60ec6e",
+      firstName: "Zorro",
+      lastName: "Hunter",
+      subscription: "starter",
+      avatarURL:
+        "C:\\Users\\andre\\Desktop\\projects_Node\\lesson-2\\nodejs-Rest-Api-projest\\public\\avatars\\651a8e20e1eb26bb8c60ec6e_avatar_zoro.jpg",
+      token:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MWE4ZTIwZTFlYjI2YmI4YzYwZWM2ZSIsImZpcnN0TmFtZSI6IlpvcnJvIiwibGFzdE5hbWUiOiJIdW50ZXIiLCJpYXQiOjE2OTY1MTI1NDgsImV4cCI6MTY5NjUxOTc0OH0.ANJ2aIQDEdFlU8bHUR1P9I9OWDAOjLmcLikPM_Z7oa0",
+    },
+  };
+
+  jest
+    .spyOn(userService, "loggedInUser")
+    .mockImplementationOnce(() => mockUser); // типу повертає фейковий об'єкт з даними
+
+  it(" second login test ", async () => {
     //
     const req = getMockReq({
       body: { email: "killer123@gmail.com", password: "123456Ad" },
     }); // дані користувача який логіниться
     const { res, next } = getMockRes();
-    //
-    const fakeData = jest.fn().mockResolvedValue(mockUser);
 
-    const useData = (userService.loggedInUser = fakeData); // фейкова відповідь від бази ????
-    await login(req, res, next); // тут ясно - виклик функції
-    console.log("USER DATA: ".bgRed, useData._doc);
+    await login(req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200); // контролюємо статус
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 200 }) // дрпугий варіант контролю статусу
+    );
+    expect(res.json).toBeCalledWith(
+      expect.objectContaining({
+        status: 200,
+        message: "User logged in successfully",
+        data: {
+          _id: "651a8e20e1eb26bb8c60ec6e",
+          firstName: "Zorro",
+          lastName: "Hunter",
+          subscription: "starter",
+          avatarURL:
+            "C:\\Users\\andre\\Desktop\\projects_Node\\lesson-2\\nodejs-Rest-Api-projest\\public\\avatars\\651a8e20e1eb26bb8c60ec6e_avatar_zoro.jpg",
+          token:
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MWE4ZTIwZTFlYjI2YmI4YzYwZWM2ZSIsImZpcnN0TmFtZSI6IlpvcnJvIiwibGFzdE5hbWUiOiJIdW50ZXIiLCJpYXQiOjE2OTY1MTI1NDgsImV4cCI6MTY5NjUxOTc0OH0.ANJ2aIQDEdFlU8bHUR1P9I9OWDAOjLmcLikPM_Z7oa0",
+        },
+      })
+    );
+  });
+});
+
+describe("is return tocken", () => {
+  const mockUser = {
+    _doc: {
+      _id: "651a8e20e1eb26bb8c60ec6e",
+      token:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MWE4ZTIwZTFlYjI2YmI4YzYwZWM2ZSIsImZpcnN0TmFtZSI6IlpvcnJvIiwibGFzdE5hbWUiOiJIdW50ZXIiLCJpYXQiOjE2OTY1MTI1NDgsImV4cCI6MTY5NjUxOTc0OH0.ANJ2aIQDEdFlU8bHUR1P9I9OWDAOjLmcLikPM_Z7oa0",
+    },
+  };
+
+  jest
+    .spyOn(userService, "loggedInUser")
+    .mockImplementationOnce(() => mockUser); // типу повертає фейковий об'єкт з даними
+  it("Controlling token", async () => {
+    const req = getMockReq({
+      body: { email: "killer123@gmail.com", password: "123456Ad" },
+    });
+    const { res, next } = getMockRes();
+
+    await login(req, res, next);
+
+    expect(res.json).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        data: {
+          _id: "651a8e20e1eb26bb8c60ec6e",
+          token:
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MWE4ZTIwZTFlYjI2YmI4YzYwZWM2ZSIsImZpcnN0TmFtZSI6IlpvcnJvIiwibGFzdE5hbWUiOiJIdW50ZXIiLCJpYXQiOjE2OTY1MTI1NDgsImV4cCI6MTY5NjUxOTc0OH0.ANJ2aIQDEdFlU8bHUR1P9I9OWDAOjLmcLikPM_Z7oa0",
+        },
+      })
+    );
   });
 });
 
@@ -62,7 +121,7 @@ describe("Login function", () => {
     expect(res.json).toHaveBeenCalledWith({
       status: 200,
       message: "User logged in successfully",
-      data: { userData: { username: "testuser" } },
+      data: { username: "testuser" },
     });
     expect(next).not.toHaveBeenCalled();
   });
