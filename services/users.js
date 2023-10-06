@@ -28,10 +28,7 @@ const loggedInUser = async (data) => {
   const { email, password } = data;
   // перевірка даних для логіну, чи маємо в базі користувача з таким емейлом
   // const request = await userRepository.login(email);
-  const request = await UserModel.findOne(
-    { email },
-    "-createdAt -updatedAt -email"
-  );
+  const request = await UserModel.findOne({ email }, "-createdAt -updatedAt");
   //
   if (!request) {
     return false;

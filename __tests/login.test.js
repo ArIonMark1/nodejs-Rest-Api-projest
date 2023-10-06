@@ -21,153 +21,113 @@ describe("second loggedInUser function".bgYellow.black, () => {
       _id: "651a8e20e1eb26bb8c60ec6e",
       firstName: "Zorro",
       lastName: "Hunter",
+      email: "killer123@gmail.com",
+      password: "$2b$10$O6OZSA5BeikK/jrWpS1mguhckszEUY5ba16cUQY2Ztg.jkJHBm14O",
       subscription: "starter",
       avatarURL:
         "C:\\Users\\andre\\Desktop\\projects_Node\\lesson-2\\nodejs-Rest-Api-projest\\public\\avatars\\651a8e20e1eb26bb8c60ec6e_avatar_zoro.jpg",
       token:
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MWE4ZTIwZTFlYjI2YmI4YzYwZWM2ZSIsImZpcnN0TmFtZSI6IlpvcnJvIiwibGFzdE5hbWUiOiJIdW50ZXIiLCJpYXQiOjE2OTY1MTI1NDgsImV4cCI6MTY5NjUxOTc0OH0.ANJ2aIQDEdFlU8bHUR1P9I9OWDAOjLmcLikPM_Z7oa0",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MWE4ZTIwZTFlYjI2YmI4YzYwZWM2ZSIsImZpcnN0TmFtZSI6IlpvcnJvIiwibGFzdE5hbWUiOiJIdW50ZXIiLCJpYXQiOjE2OTY1MTg2MTMsImV4cCI6MTY5NjUyNTgxM30.ZNCKAgNREYsrB77vqRbmnLfcogV0WBsjD1d2lK4VpsA",
     },
   };
 
-  jest
-    .spyOn(userService, "loggedInUser")
-    .mockImplementationOnce(() => mockUser); // типу повертає фейковий об'єкт з даними
-
-  it(" second login test ", async () => {
+  it(" success login test ".bgGreen.black, async () => {
+    jest
+      .spyOn(userService, "loggedInUser")
+      .mockImplementationOnce((userData) => ({ ...userData, ...mockUser })); // типу повертає фейковий об'єкт з даними
     //
     const req = getMockReq({
       body: { email: "killer123@gmail.com", password: "123456Ad" },
     }); // дані користувача який логіниться
+
     const { res, next } = getMockRes();
 
     await login(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(200); // контролюємо статус
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ status: 200 }) // дрпугий варіант контролю статусу
-    );
-    expect(res.json).toBeCalledWith(
       expect.objectContaining({
         status: 200,
         message: "User logged in successfully",
+      })
+    );
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
         data: {
           _id: "651a8e20e1eb26bb8c60ec6e",
           firstName: "Zorro",
           lastName: "Hunter",
+          email: "killer123@gmail.com",
           subscription: "starter",
           avatarURL:
             "C:\\Users\\andre\\Desktop\\projects_Node\\lesson-2\\nodejs-Rest-Api-projest\\public\\avatars\\651a8e20e1eb26bb8c60ec6e_avatar_zoro.jpg",
           token:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MWE4ZTIwZTFlYjI2YmI4YzYwZWM2ZSIsImZpcnN0TmFtZSI6IlpvcnJvIiwibGFzdE5hbWUiOiJIdW50ZXIiLCJpYXQiOjE2OTY1MTI1NDgsImV4cCI6MTY5NjUxOTc0OH0.ANJ2aIQDEdFlU8bHUR1P9I9OWDAOjLmcLikPM_Z7oa0",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MWE4ZTIwZTFlYjI2YmI4YzYwZWM2ZSIsImZpcnN0TmFtZSI6IlpvcnJvIiwibGFzdE5hbWUiOiJIdW50ZXIiLCJpYXQiOjE2OTY1MTg2MTMsImV4cCI6MTY5NjUyNTgxM30.ZNCKAgNREYsrB77vqRbmnLfcogV0WBsjD1d2lK4VpsA",
         },
       })
     );
-  });
-});
-
-describe("is return tocken", () => {
-  const mockUser = {
-    _doc: {
-      _id: "651a8e20e1eb26bb8c60ec6e",
-      token:
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MWE4ZTIwZTFlYjI2YmI4YzYwZWM2ZSIsImZpcnN0TmFtZSI6IlpvcnJvIiwibGFzdE5hbWUiOiJIdW50ZXIiLCJpYXQiOjE2OTY1MTI1NDgsImV4cCI6MTY5NjUxOTc0OH0.ANJ2aIQDEdFlU8bHUR1P9I9OWDAOjLmcLikPM_Z7oa0",
-    },
-  };
-
-  jest
-    .spyOn(userService, "loggedInUser")
-    .mockImplementationOnce(() => mockUser); // типу повертає фейковий об'єкт з даними
-  it("Controlling token", async () => {
+  }); // complete
+  // ************************************************************************************************
+  //
+  it("empty field forn login".bgGreen.black, async () => {
+    jest.spyOn(userService, "loggedInUser").mockImplementationOnce(() => false); // response = false
+    //
     const req = getMockReq({
       body: { email: "killer123@gmail.com", password: "123456Ad" },
-    });
+    }); // дані користувача який логіниться
     const { res, next } = getMockRes();
-
+    //
     await login(req, res, next);
-
-    expect(res.json).toHaveBeenLastCalledWith(
+    //
+    expect(next).toHaveBeenCalled();
+    expect(next).toBeCalledTimes(1);
+    expect(next).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: {
-          _id: "651a8e20e1eb26bb8c60ec6e",
-          token:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MWE4ZTIwZTFlYjI2YmI4YzYwZWM2ZSIsImZpcnN0TmFtZSI6IlpvcnJvIiwibGFzdE5hbWUiOiJIdW50ZXIiLCJpYXQiOjE2OTY1MTI1NDgsImV4cCI6MTY5NjUxOTc0OH0.ANJ2aIQDEdFlU8bHUR1P9I9OWDAOjLmcLikPM_Z7oa0",
-        },
+        status: 401,
+        message: "Wrong user data!.",
       })
     );
   });
-});
+  // ************************************************************************************************
+  //
+  it("control type of received data".bgGreen.black, async () => {
+    jest
+      .spyOn(userService, "loggedInUser")
+      .mockImplementationOnce((userData) => ({ ...userData, ...mockUser })); // типу повертає фейковий об'єкт з даними
 
-// =================================================================
-// =================================================================
-
-describe("Login function", () => {
-  // =================================================================
-  test("successful login", async () => {
-    const req = { body: { username: "testuser", password: "password123" } };
-    const res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    };
-    const next = jest.fn();
-
-    const mockUser = {
-      _doc: { username: "testuser", password: "password123" },
-    };
-    userService.loggedInUser.mockResolvedValueOnce(mockUser);
-
+    const req = getMockReq({
+      body: { email: "killer123@gmail.com", password: "123456Ad" },
+    }); // дані користувача який логіниться
+    const { res, next } = getMockRes();
+    // ***************************
     await login(req, res, next);
-
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      status: 200,
-      message: "User logged in successfully",
-      data: { username: "testuser" },
-    });
-    expect(next).not.toHaveBeenCalled();
+    // ***************************
+    expect(res.json).toHaveBeenCalledWith(expect.any(Object)); // перевіряє чи відповідь повертає об'єкт
+    //
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: expect.any(Number),
+        message: expect.any(String),
+        data: expect.any(Object),
+      })
+    ); // перевіряє типи даних в об'єкті який прийшов у відповіді
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: {
+          _id: expect.any(String),
+          firstName: expect.any(String),
+          lastName: expect.any(String),
+          email: expect.any(String),
+          subscription: expect.any(String),
+          avatarURL: expect.any(String),
+          token: expect.any(String),
+        },
+      })
+    ); // перевіряє типи даних у вкладеному об'єкті
   });
-  // =================================================================
-  // test("login with wrong user data", async () => {
-  //   const req = { body: { username: "testuser", password: "wrongpassword" } };
-  //   const res = {
-  //     status: jest.fn().mockReturnThis(),
-  //     json: jest.fn(),
-  //   };
-  //   const next = jest.fn();
-
-  //   userService.loggedInUser.mockResolvedValueOnce(null);
-
-  //   await login(req, res, next);
-
-  //   expect(res.status).toHaveBeenCalledWith(400);
-  //   expect(res).toHaveBeenCalledWith({
-  //     status: 400,
-  //     message: 'Not correct data. "email" is required',
-  //   });
-  //   expect(next).not.toHaveBeenCalled();
-  // });
-  // =================================================================
-  // test("login with error", async () => {
-  //   const req = { body: { username: "testuser", password: "password123" } };
-  //   const res = {
-  //     status: jest.fn().mockReturnThis(),
-  //     json: jest.fn(),
-  //   };
-  //   const next = jest.fn();
-
-  //   const error = new HttpError(500, "Internal Server Error");
-  //   userService.loggedInUser.mockRejectedValueOnce(error);
-
-  //   await login(req, res, next);
-
-  //   expect(next).toHaveBeenCalledWith(error);
-  //   expect(res.status).not.toHaveBeenCalled();
-  //   expect(res.json).not.toHaveBeenCalled();
-  // });
 });
 
 // =================================================================
-// =================================================================
-
 describe(" tests to control shopping list ".bgYellow.black, () => {
   const shoppingList = [
     "Axe",
@@ -177,6 +137,7 @@ describe(" tests to control shopping list ".bgYellow.black, () => {
     "dynamite",
     { a: 1, b: 2, c: 3, d: 4, e: 5 },
   ];
+
   // =================================================================
   it(" Is controlling shoping list contain Axe ".bgGreen.black, () => {
     expect(shoppingList).toContain("Axe");
