@@ -4,23 +4,31 @@ const userRepository = require("../dbService/authRequests");
 const { SECRET_KEY } = require("../helpers/env");
 const HttpError = require("../helpers/HttpError");
 const { UserModel } = require("../dbService/models/authSchema");
+const gravatar = require("gravatar");
+const path = require("path");
 require("colors");
-// const UserModel = require("../db/models/user");
+
+const defaultAvatarPath = path.join(__dirname, "../", "public", "images");
+const avatarURL = path.join(defaultAvatarPath, "avatar.png");
 
 // services ********************************
-const createUser = async (data) => {
+const createUser = async ({ ...data }) => {
   const passwordHash = await bcrypt.hash(data.password, 10);
+
+  // const userAvatarURL = gravatar.url(data.email); //
+  //
   const user = await userRepository.register({
     ...data,
+    avatarURL,
     password: passwordHash,
   });
   return user;
 };
-
 const loggedInUser = async (data) => {
   const { email, password } = data;
   // перевірка даних для логіну, чи маємо в базі користувача з таким емейлом
-  const request = await userRepository.login(email);
+  // const request = await userRepository.login(email);
+  const request = await UserModel.findOne({ email }, "-createdAt -updatedAt");
   //
   if (!request) {
     return false;

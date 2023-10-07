@@ -7,7 +7,6 @@ const userSchema = new Schema(
   {
     firstName: { type: String },
     lastName: { type: String },
-
     email: {
       type: String,
       lowercase: true,
@@ -24,6 +23,10 @@ const userSchema = new Schema(
       type: String,
       enum: ["starter", "pro", "business"],
       default: "starter",
+    },
+    avatarURL: {
+      type: String,
+      default: " ",
     },
     token: { type: String, default: "" },
   },

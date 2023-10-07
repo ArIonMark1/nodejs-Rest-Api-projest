@@ -1,0 +1,34 @@
+describe('login', () => {
+  test('should login a user successfully', async () => {
+    // Створіть фіктивний об'єкт req.body для передачі в функцію
+    const req = { body: /* ваш об'єкт з даними для входу */ };
+    
+    // Мокайте функцію userService.loggedInUser для повернення фіктивного користувача
+    userService.loggedInUser = jest.fn().mockResolvedValue(/* ваш фіктивний користувач */);
+    
+    // Мокайте консоль для перевірки виводу
+    console.log = jest.fn();
+
+    // Викликайте функцію login
+    const res = { 
+      status: jest.fn().mockReturnThis(), // Мокайте функцію status
+      json: jest.fn() // Мокайте функцію json
+    };
+    const next = jest.fn(); // Мокайте функцію next
+    
+    await login(req, res, next);
+    
+    // Перевірка, чи було викликано функції згідно з очікуваннями
+    expect(userService.loggedInUser).toHaveBeenCalledWith(req.body);
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Login response'));
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 200,
+      message: 'User logged in successfully',
+      data: { userData: /* очікувані дані користувача */ },
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+  
+  // Додайте інші тести для різних сценаріїв
+});

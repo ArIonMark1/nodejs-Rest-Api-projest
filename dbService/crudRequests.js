@@ -1,17 +1,12 @@
 const ContactModel = require("./models/dbSchema");
 const HttpError = require("../helpers/HttpError");
 const FindUserByEmail = require("../helpers/FindUserByEmail");
-const { HTTPRequest } = require("puppeteer");
 require("colors");
 // ************************************************
 
 const allData = async (owner, { page = 1, limit = 5 }) => {
   try {
-    console.log("PAGE: ", typeof page);
-    console.log("PAGE: ", typeof limit);
-
     const skip = (+page - 1) * +limit;
-    console.log(skip, typeof skip);
 
     const response = await ContactModel.find({ isDeleted: false, owner }, null)
       .populate("owner", "firstName lastName email subscription")
@@ -28,7 +23,6 @@ const allData = async (owner, { page = 1, limit = 5 }) => {
 // ------------------------------------------------
 const getContactById = async (owner, contactId) => {
   try {
-    console.log(contactId);
     return await ContactModel.findOne({
       _id: contactId,
       owner,
@@ -67,7 +61,6 @@ const updateContact = async ({ contactId }, { _id: owner }, body) => {
         returnOriginal: false, //
       }
     );
-    console.log("Return from CRUD: ".red, result);
     return result;
   } catch (error) {
     return {
@@ -92,8 +85,6 @@ const updateFavorite = async ({ contactId }, { _id: owner }, body) => {
 // ------------------------------------------------
 const removeContact = async ({ contactId }, { _id: owner }) => {
   try {
-    console.log("CONTACT ID: ".red, contactId);
-    console.log("OWNER: ".red, owner);
     const result = await ContactModel.findOneAndUpdate(
       { _id: contactId, owner },
       {

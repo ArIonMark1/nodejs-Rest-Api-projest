@@ -25,7 +25,6 @@ const getById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
     const { _id: owner } = req.user;
-    // const response = await contacts.getContactById(contactId);
     const response = await handlerRequest.getContactById(owner, contactId);
 
     if (!response || response.error) {
@@ -64,7 +63,6 @@ const updateByID = async (req, res, next) => {
     if (!Object.keys(req.body).length) {
       throw HttpError(400, `Missing fields`);
     }
-    // const result = await contacts.updateContact(req.params, req.body);
     const result = await handlerRequest.updateContact(
       req.params,
       req.user,
@@ -99,7 +97,6 @@ const updateStatusContact = async (req, res, next) => {
     );
     if (response.error) {
       const { status, message } = response.error;
-      // console.log(`${status} "${message}"`.red);
       throw HttpError(status, message);
     }
     res.status(200).json(response);
