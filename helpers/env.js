@@ -7,6 +7,7 @@ const {
   SECRET_KEY,
   EMAIL_ADDRESS,
   EMAIL_PASSWORD,
+  BASE_URL,
 } = process.env;
 
 if (!MONGO_DB_USER) {
@@ -27,6 +28,10 @@ if (!EMAIL_ADDRESS) {
 if (!EMAIL_PASSWORD) {
   throw new Error("Required EMAIL_PASSWORD variable");
 }
+if (!BASE_URL) {
+  throw new Error("Required BASE_URL variable");
+}
+
 module.exports = {
   MONGO_DB_USER,
   MONGO_DB_USER_PASSWORD,
@@ -34,4 +39,5 @@ module.exports = {
   SECRET_KEY,
   EMAIL_ADDRESS,
   EMAIL_PASSWORD,
+  BASE_URL,
 };

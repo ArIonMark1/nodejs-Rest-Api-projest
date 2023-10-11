@@ -20,7 +20,7 @@ const sendEmail = async (payload) => {
     console.log("Message sent: %s", result);
     return result;
   } catch (error) {
-    throw HttpError(403, `Mail server error: ${error.message}`);
+    throw HttpError(403, error.message);
   }
 };
 // sendEmail();

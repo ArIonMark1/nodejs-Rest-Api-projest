@@ -3,7 +3,7 @@ const Handlebars = require("handlebars");
 const jwt = require("jsonwebtoken");
 const fs = require("fs").promises;
 const path = require("path");
-const { EMAIL_ADDRESS } = require("../../helpers/env");
+const { EMAIL_ADDRESS, BASE_URL } = require("../../helpers/env");
 require("colors");
 
 const registrationEmail = async ({ firstName, email, verificationToken }) => {
@@ -17,7 +17,7 @@ const registrationEmail = async ({ firstName, email, verificationToken }) => {
   // передаємо дані в шаблон
   const output = template({
     name: firstName,
-    link: `http://localhost:3000/api/users/verify/${verificationToken}`,
+    link: `${BASE_URL}/api/users/verify/${verificationToken}`,
   });
   // передаємо шаблон та інші дані відправнику
   // console.log(`${output.link}`.bgYellow);

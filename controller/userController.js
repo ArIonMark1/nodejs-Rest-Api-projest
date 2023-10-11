@@ -1,10 +1,11 @@
 const userService = require("../services/users");
 const HttpError = require("../helpers/HttpError");
-const { updateAvatar } = require("../dbService/authRequests");
+const { updateAvatar, findUser } = require("../dbService/authRequests");
 const fs = require("fs").promises;
 const Jimp = require("jimp");
 const path = require("path");
 const { sendEmail } = require("../services/nodemailer");
+const { registrationEmail } = require("../services/emails/sendEmail_handler");
 require("colors");
 
 const avatarDir = path.join(__dirname, "../", "public", "avatars");
@@ -22,13 +23,6 @@ const registration = async (req, res, next) => {
     next(error);
   }
 };
-/*
-1 При закінченні реєстрації відправляємо листа
-2 Робимо редірект на сторінку із сповіщенням що був відправлений лист для підтвердження реєстрації
-3 При переході по лінкі із листа попадаємо на роут(юрл) підтвердження токену
-4 В залежності від успішності підтвердження токену генеруємо сповіщення (200 або 404)
-
-*/
 const login = async (req, res, next) => {
   try {
     const loginUser = await userService.loggedInUser(req.body); //
@@ -123,6 +117,27 @@ const userVerification = async (req, res, next) => {
     return next(error);
   }
 };
+const resendVerify = async (req, res, next) => {
+  const { email } = req.body;
+  const user = await findUser(email);
+  try {
+    if (!user) {
+      throw HttpError(404);
+    }
+    if (user.verify) {
+      throw HttpError(401, "Email already verified");
+    }
+    registrationEmail({
+      firstName,
+      email,
+      verificationToken: user.verificationToken,
+    });
+
+    res.status(200).json({ status: 200, message: "Verify email send success" });
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
   registration,
@@ -131,4 +146,5 @@ module.exports = {
   logout,
   handleAvatar,
   userVerification,
+  resendVerify,
 };

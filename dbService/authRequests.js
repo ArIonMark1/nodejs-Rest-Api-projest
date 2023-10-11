@@ -29,10 +29,14 @@ const verification = async (verificationToken) => {
   );
   return user;
 };
+const findUser = async (email) => {
+  return await UserModel.findOne({ email });
+};
 module.exports = {
   register,
   login,
   logout,
   updateAvatar,
   verification,
+  findUser,
 };
