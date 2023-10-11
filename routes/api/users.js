@@ -26,6 +26,6 @@ router.patch(
   controller.handleAvatar
   //
 );
-router.get("/verify/:verificationToken", controller.verification);
+router.get("/verify/:verificationToken", controller.userVerification);
 // =================================================================
 module.exports = router;

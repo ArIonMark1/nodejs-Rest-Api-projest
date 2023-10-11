@@ -12,14 +12,11 @@ const avatarDir = path.join(__dirname, "../", "public", "avatars");
 const registration = async (req, res, next) => {
   try {
     const { body } = req;
-    console.log("NEW USER EMAIL: ".bgRed, body.email);
-    await sendEmail(body.email);
-    const newUser = await userService.createUser(body);
+    await userService.createUser(body);
 
     res.status(201).json({
       status: 201,
-      message: "User created successfully!",
-      data: newUser,
+      message: `Your account has been registered, please confirm your registration using the email we sent you.`,
     });
   } catch (error) {
     next(error);
@@ -101,11 +98,27 @@ const handleAvatar = async (req, res, next) => {
     data: { avatarURL },
   });
 };
-const verification = async (req, res, next) => {
+const userVerification = async (req, res, next) => {
   try {
-    console.log("Verification".bgYellow);
-    console.log("token: ".bgGreen, `${req.params.verificationToken}`.bgWhite);
-    res.status(200).json();
+    // шукаємо користувача по токену
+    // поле verify = true а verificationToken видаляємо
+    const { verificationToken } = req.params;
+    const registeredUser = await userService.handleVerification(
+      verificationToken
+    );
+    const {
+      password,
+      verificationToken: regToken,
+      token,
+      ...data
+    } = registeredUser;
+    console.log("VERIFICATION COMPLETED: ".bgGreen, registeredUser);
+
+    res.status(200).json({
+      status: 200,
+      message: "Registration successfully confirmed",
+      data: data,
+    });
   } catch (error) {
     return next(error);
   }
@@ -117,5 +130,5 @@ module.exports = {
   current,
   logout,
   handleAvatar,
-  verification,
+  userVerification,
 };
