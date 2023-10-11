@@ -11,17 +11,12 @@ const upload = require("../../middlewares/upload");
 const router = new Router();
 
 // реєстрація нового користувача
-router.post(
-  "/register",
-  validateBody(RegisterSchema),
-  // upload.single("avatar"),
-  controller.registration
-);
-// отримуємо токен
+router.post("/register", validateBody(RegisterSchema), controller.registration);
+// логінізація користувача, отримуємо токен
 router.post("/login", validateBody(LoginSchema), controller.login);
 // вивести дані залогіненого користувача
 router.get("/current", authenticate, controller.current);
-// вийти із системи
+// вийти із системи, видалити токен
 router.post("/logout", authenticate, controller.logout);
 // змінити аватарку
 router.patch(
@@ -31,5 +26,6 @@ router.patch(
   controller.handleAvatar
   //
 );
+router.get("/verify/:verificationToken", controller.verification);
 // =================================================================
 module.exports = router;
