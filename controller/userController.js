@@ -127,9 +127,9 @@ const resendVerify = async (req, res, next) => {
     if (user.verify) {
       throw HttpError(401, "Email already verified");
     }
-    registrationEmail({
-      firstName,
-      email,
+    await registrationEmail({
+      firstName: user.firstName,
+      email: user.email,
       verificationToken: user.verificationToken,
     });
 

@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs").promises;
 const path = require("path");
 const { EMAIL_ADDRESS, BASE_URL } = require("../../helpers/env");
+const HttpError = require("../../helpers/HttpError");
 require("colors");
 
 const registrationEmail = async ({ firstName, email, verificationToken }) => {
@@ -20,14 +21,17 @@ const registrationEmail = async ({ firstName, email, verificationToken }) => {
     link: `${BASE_URL}/api/users/verify/${verificationToken}`,
   });
   // передаємо шаблон та інші дані відправнику
-  // console.log(`${output.link}`.bgYellow);
-  // console.log(`${verificationToken}`.bgWhite);
-  await sendEmail({
-    from: EMAIL_ADDRESS,
-    to: email,
-    subject: "Confirm registration",
-    html: output,
-  });
+
+  try {
+    await sendEmail({
+      from: EMAIL_ADDRESS,
+      to: email,
+      subject: "Confirm registration",
+      html: output,
+    });
+  } catch (error) {
+    throw HttpError(error.status, error.message);
+  }
 };
 
 module.exports = { registrationEmail };

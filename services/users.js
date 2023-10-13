@@ -21,7 +21,7 @@ const createUser = async ({ ...data }) => {
   const verificationToken = jwt.sign({ firstName, lastName }, SECRET_KEY, {
     expiresIn: "2h",
   });
-  registrationEmail({ firstName, email, verificationToken });
+  await registrationEmail({ firstName, email, verificationToken });
   //
   const user = await userRepository.register({
     ...data,
