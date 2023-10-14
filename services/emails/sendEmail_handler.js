@@ -5,7 +5,6 @@ const fs = require("fs").promises;
 const path = require("path");
 const { EMAIL_ADDRESS, BASE_URL } = require("../../helpers/env");
 const HttpError = require("../../helpers/HttpError");
-require("colors");
 
 const registrationEmail = async ({ firstName, email, verificationToken }) => {
   // шаблон

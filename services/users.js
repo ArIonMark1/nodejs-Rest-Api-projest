@@ -4,10 +4,9 @@ const userRepository = require("../dbService/authRequests");
 const { SECRET_KEY } = require("../helpers/env");
 const HttpError = require("../helpers/HttpError");
 const { UserModel } = require("../dbService/models/authSchema");
-const gravatar = require("gravatar");
+// const gravatar = require("gravatar");
 const path = require("path");
 const { registrationEmail } = require("./emails/sendEmail_handler");
-require("colors");
 
 const defaultAvatarPath = path.join(__dirname, "../", "public", "images");
 const avatarURL = path.join(defaultAvatarPath, "avatar.png");

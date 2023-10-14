@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const HttpError = require("../helpers/HttpError");
 const { UserModel } = require("../dbService/models/authSchema");
-require("colors");
 
 const { SECRET_KEY } = process.env;
 

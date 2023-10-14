@@ -8,6 +8,7 @@ const {
   EMAIL_ADDRESS,
   EMAIL_PASSWORD,
   BASE_URL,
+  PORT,
 } = process.env;
 
 if (!MONGO_DB_USER) {
@@ -31,6 +32,9 @@ if (!EMAIL_PASSWORD) {
 if (!BASE_URL) {
   throw new Error("Required BASE_URL variable");
 }
+if (!PORT) {
+  throw new Error("Required PORT variable");
+}
 
 module.exports = {
   MONGO_DB_USER,
@@ -40,4 +44,5 @@ module.exports = {
   EMAIL_ADDRESS,
   EMAIL_PASSWORD,
   BASE_URL,
+  PORT,
 };

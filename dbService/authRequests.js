@@ -1,5 +1,4 @@
 const { UserModel } = require("./models/authSchema");
-require("colors");
 
 const register = async (data) => {
   const user = new UserModel(data);

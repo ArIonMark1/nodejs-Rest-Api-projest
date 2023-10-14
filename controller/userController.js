@@ -6,7 +6,6 @@ const Jimp = require("jimp");
 const path = require("path");
 const { sendEmail } = require("../services/nodemailer");
 const { registrationEmail } = require("../services/emails/sendEmail_handler");
-require("colors");
 
 const avatarDir = path.join(__dirname, "../", "public", "avatars");
 
@@ -105,8 +104,7 @@ const userVerification = async (req, res, next) => {
       verificationToken: regToken,
       token,
       ...data
-    } = registeredUser;
-    console.log("VERIFICATION COMPLETED: ".bgGreen, registeredUser);
+    } = registeredUser._doc;
 
     res.status(200).json({
       status: 200,

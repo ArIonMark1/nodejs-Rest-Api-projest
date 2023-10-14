@@ -2,7 +2,6 @@
 /* Портуємо обробники БД !! */
 
 const HttpError = require("../helpers/HttpError");
-require("colors");
 // ****************************************************************
 const handlerRequest = require("../dbService/crudRequests");
 // ------------------------------------
