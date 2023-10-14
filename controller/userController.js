@@ -1,22 +1,22 @@
 const userService = require("../services/users");
 const HttpError = require("../helpers/HttpError");
-const { updateAvatar } = require("../dbService/authRequests");
+const { updateAvatar, findUser } = require("../dbService/authRequests");
 const fs = require("fs").promises;
 const Jimp = require("jimp");
 const path = require("path");
-require("colors");
+const { sendEmail } = require("../services/nodemailer");
+const { registrationEmail } = require("../services/emails/sendEmail_handler");
 
 const avatarDir = path.join(__dirname, "../", "public", "avatars");
 
 const registration = async (req, res, next) => {
   try {
     const { body } = req;
-    const newUser = await userService.createUser(body);
+    await userService.createUser(body);
 
     res.status(201).json({
       status: 201,
-      message: "User created successfully!",
-      data: newUser,
+      message: `Your account has been registered, please confirm your registration using the email we sent you.`,
     });
   } catch (error) {
     next(error);
@@ -91,6 +91,51 @@ const handleAvatar = async (req, res, next) => {
     data: { avatarURL },
   });
 };
+const userVerification = async (req, res, next) => {
+  try {
+    // шукаємо користувача по токену
+    // поле verify = true а verificationToken видаляємо
+    const { verificationToken } = req.params;
+    const registeredUser = await userService.handleVerification(
+      verificationToken
+    );
+    const {
+      password,
+      verificationToken: regToken,
+      token,
+      ...data
+    } = registeredUser._doc;
+
+    res.status(200).json({
+      status: 200,
+      message: "Registration successfully confirmed",
+      data: data,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+const resendVerify = async (req, res, next) => {
+  const { email } = req.body;
+  const user = await findUser(email);
+  try {
+    if (!user) {
+      throw HttpError(404);
+    }
+    if (user.verify) {
+      throw HttpError(401, "Email already verified");
+    }
+    await registrationEmail({
+      firstName: user.firstName,
+      email: user.email,
+      verificationToken: user.verificationToken,
+    });
+
+    res.status(200).json({ status: 200, message: "Verify email send success" });
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
   registration,
@@ -98,4 +143,6 @@ module.exports = {
   current,
   logout,
   handleAvatar,
+  userVerification,
+  resendVerify,
 };

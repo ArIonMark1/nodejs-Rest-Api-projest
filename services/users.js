@@ -4,9 +4,9 @@ const userRepository = require("../dbService/authRequests");
 const { SECRET_KEY } = require("../helpers/env");
 const HttpError = require("../helpers/HttpError");
 const { UserModel } = require("../dbService/models/authSchema");
-const gravatar = require("gravatar");
+// const gravatar = require("gravatar");
 const path = require("path");
-require("colors");
+const { registrationEmail } = require("./emails/sendEmail_handler");
 
 const defaultAvatarPath = path.join(__dirname, "../", "public", "images");
 const avatarURL = path.join(defaultAvatarPath, "avatar.png");
@@ -16,21 +16,27 @@ const createUser = async ({ ...data }) => {
   const passwordHash = await bcrypt.hash(data.password, 10);
 
   // const userAvatarURL = gravatar.url(data.email); //
+  const { firstName, lastName, email } = data;
+  const verificationToken = jwt.sign({ firstName, lastName }, SECRET_KEY, {
+    expiresIn: "2h",
+  });
+  await registrationEmail({ firstName, email, verificationToken });
   //
   const user = await userRepository.register({
     ...data,
     avatarURL,
     password: passwordHash,
+    verificationToken,
   });
+
   return user;
 };
 const loggedInUser = async (data) => {
   const { email, password } = data;
   // перевірка даних для логіну, чи маємо в базі користувача з таким емейлом
-  // const request = await userRepository.login(email);
   const request = await UserModel.findOne({ email }, "-createdAt -updatedAt");
   //
-  if (!request) {
+  if (!request || request.verify === false) {
     return false;
   }
   //  перевірка співпадіння паролів
@@ -61,4 +67,11 @@ const loggedInUser = async (data) => {
 const logout = async (id) => {
   return await userRepository.logout(id);
 };
-module.exports = { createUser, loggedInUser, logout };
+const handleVerification = async (verificationToken) => {
+  const createdUser = await userRepository.verification(verificationToken);
+  if (!createdUser) {
+    throw HttpError(404);
+  }
+  return createdUser;
+};
+module.exports = { createUser, loggedInUser, logout, handleVerification };

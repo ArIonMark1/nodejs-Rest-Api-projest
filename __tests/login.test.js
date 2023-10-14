@@ -13,8 +13,6 @@ const HttpError = require("../helpers/HttpError"); //
 
 jest.mock("../services/users"); // Мокуємо userService
 
-require("colors");
-
 describe("second loggedInUser function".bgYellow.black, () => {
   const mockUser = {
     _doc: {

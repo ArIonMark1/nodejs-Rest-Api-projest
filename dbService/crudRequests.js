@@ -1,7 +1,6 @@
 const ContactModel = require("./models/dbSchema");
 const HttpError = require("../helpers/HttpError");
 const FindUserByEmail = require("../helpers/FindUserByEmail");
-require("colors");
 // ************************************************
 
 const allData = async (owner, { page = 1, limit = 5 }) => {
